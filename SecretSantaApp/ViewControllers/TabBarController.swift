@@ -17,6 +17,7 @@ class TabBarController: UITabBarController {
         // Create instances of the view controllers
         let homeScreenVC = UINavigationController(rootViewController: HomeScreen())
         homeScreenVC.title = "Home Screen"
+        //homeScreenVC.navigationController?.navigationBar.prefersLargeTitles = true
         let settingsVC = UINavigationController(rootViewController: SettingsViewController())
         settingsVC.title = "Settings"
         

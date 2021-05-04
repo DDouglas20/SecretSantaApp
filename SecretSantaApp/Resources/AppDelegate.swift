@@ -17,6 +17,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Override point for customization after application launch.
         FirebaseApp.configure()
         
+        // Configure the look of the Nav bar
+        UINavigationBar.appearance().isTranslucent = true
+        
+        //UINavigationBar.appearance().barTintColor = .green
         
         return true
     }

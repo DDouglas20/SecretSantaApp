@@ -210,7 +210,7 @@ extension RegistrationViewController: UITextFieldDelegate {
                 }
                 
                 
-                DatabaseManager.shared.insertUserName(withemail: fireBaseEmail, name: name, completion: { [weak self] success in
+                DatabaseManager.shared.insertUserInfo(withemail: fireBaseEmail, name: name, completion: { [weak self] success in
                     if success {
                         print("Successfully inserted user into database")
                         UserDefaults.standard.setValue(fireBaseEmail, forKey: "email")

@@ -44,9 +44,10 @@ extension DatabaseManager {
         })
     }
     
-    public func insertUserName(withemail email: String, name: String, completion: @escaping ((Bool) -> Void) ){
+    public func insertUserInfo(withemail email: String, name: String, completion: @escaping ((Bool) -> Void) ){
         database.child(email).setValue([
             "name": name
+            
         ], withCompletionBlock: { error, _ in
             
             guard error == nil else {
@@ -75,6 +76,10 @@ extension DatabaseManager {
             }
             completion(.success(value))
         })
+    }
+    
+    public func createGroupID(with email: String, completion: @escaping (Bool) -> Void) {
+        
     }
     
 }

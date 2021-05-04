@@ -21,3 +21,8 @@ struct SecretSantaUser {
     }
 }
 
+struct groupStructure {
+    let groupID: String
+    let groupName: String
+    let groupMembers: [String]
+}

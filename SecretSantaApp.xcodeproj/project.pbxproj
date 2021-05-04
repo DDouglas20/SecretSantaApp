@@ -24,6 +24,7 @@
 		B70E24ED2640C96F008D79BB /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24EC2640C96F008D79BB /* SettingsViewController.swift */; };
 		B70E25072640F50A008D79BB /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25062640F50A008D79BB /* TabBarController.swift */; };
 		B70E251F2641C3A0008D79BB /* HomeScreenTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */; };
+		B70E25222641DD2F008D79BB /* HomeScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,6 +47,7 @@
 		B70E24EC2640C96F008D79BB /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
 		B70E25062640F50A008D79BB /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTableViewCell.swift; sourceTree = "<group>"; };
+		B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewModel.swift; sourceTree = "<group>"; };
 		F747B4FB613B905E2DF12BEB /* Pods-SecretSantaApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretSantaApp.release.xcconfig"; path = "Target Support Files/Pods-SecretSantaApp/Pods-SecretSantaApp.release.xcconfig"; sourceTree = "<group>"; };
 		F9B87715DB645009E480207F /* Pods_SecretSantaApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecretSantaApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -139,6 +141,7 @@
 			isa = PBXGroup;
 			children = (
 				B70E24E9264088C5008D79BB /* Structs.swift */,
+				B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */,
 				B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */,
 			);
 			path = Models;
@@ -277,6 +280,7 @@
 				B70E24462634BE3F008D79BB /* HomeScreen.swift in Sources */,
 				B70E24772634C483008D79BB /* DatabaseManager.swift in Sources */,
 				B70E24422634BE3F008D79BB /* AppDelegate.swift in Sources */,
+				B70E25222641DD2F008D79BB /* HomeScreenViewModel.swift in Sources */,
 				B70E24442634BE3F008D79BB /* SceneDelegate.swift in Sources */,
 				B70E24742634C469008D79BB /* RegistrationViewController.swift in Sources */,
 				B70E248C263505B1008D79BB /* Extensions.swift in Sources */,

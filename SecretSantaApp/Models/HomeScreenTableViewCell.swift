@@ -9,15 +9,18 @@ import UIKit
 
 class HomeScreenTableViewCell: UITableViewCell {
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        // Initialization code
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-        // Configure the view for the selected state
+    static let identifier = "HomeScreenTableViewCell"
+    
+    public func setUp(with viewModel: HomeScreenViewModel) {
+        self.textLabel?.text = viewModel.title
+        switch viewModel.viewModelType {
+        case .section:
+            textLabel?.textAlignment = .left
+            selectionStyle = .none
+        case .group:
+            textLabel?.textAlignment = .left
+            selectionStyle = .default
+        }
     }
 
 }
