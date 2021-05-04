@@ -3,18 +3,27 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 50;
+	objectVersion = 51;
 	objects = {
 
 /* Begin PBXBuildFile section */
 		0874DD17662123F9C6F331FD /* Pods_SecretSantaApp.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9B87715DB645009E480207F /* Pods_SecretSantaApp.framework */; };
 		B70E24422634BE3F008D79BB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24412634BE3F008D79BB /* AppDelegate.swift */; };
 		B70E24442634BE3F008D79BB /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24432634BE3F008D79BB /* SceneDelegate.swift */; };
-		B70E24462634BE3F008D79BB /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24452634BE3F008D79BB /* ViewController.swift */; };
+		B70E24462634BE3F008D79BB /* HomeScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24452634BE3F008D79BB /* HomeScreen.swift */; };
 		B70E24492634BE3F008D79BB /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B70E24472634BE3F008D79BB /* Main.storyboard */; };
 		B70E244B2634BE40008D79BB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B70E244A2634BE40008D79BB /* Assets.xcassets */; };
 		B70E244E2634BE40008D79BB /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B70E244C2634BE40008D79BB /* LaunchScreen.storyboard */; };
-		B70E24572634BE4F008D79BB /* GoogleService-Info-2.plist in Resources */ = {isa = PBXBuildFile; fileRef = B70E24562634BE4F008D79BB /* GoogleService-Info-2.plist */; };
+		B70E24702634C45D008D79BB /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E246F2634C45D008D79BB /* LoginViewController.swift */; };
+		B70E24742634C469008D79BB /* RegistrationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24732634C469008D79BB /* RegistrationViewController.swift */; };
+		B70E24772634C483008D79BB /* DatabaseManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24762634C483008D79BB /* DatabaseManager.swift */; };
+		B70E248C263505B1008D79BB /* Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E248B263505B1008D79BB /* Extensions.swift */; };
+		B70E24AE2637A74C008D79BB /* AlertFunctions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24AD2637A74C008D79BB /* AlertFunctions.swift */; };
+		B70E24D5263E565F008D79BB /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B70E24D4263E565F008D79BB /* GoogleService-Info.plist */; };
+		B70E24EA264088C5008D79BB /* Structs.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24E9264088C5008D79BB /* Structs.swift */; };
+		B70E24ED2640C96F008D79BB /* SettingsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E24EC2640C96F008D79BB /* SettingsViewController.swift */; };
+		B70E25072640F50A008D79BB /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25062640F50A008D79BB /* TabBarController.swift */; };
+		B70E251F2641C3A0008D79BB /* HomeScreenTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,12 +31,21 @@
 		B70E243E2634BE3F008D79BB /* SecretSantaApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SecretSantaApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B70E24412634BE3F008D79BB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B70E24432634BE3F008D79BB /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
-		B70E24452634BE3F008D79BB /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		B70E24452634BE3F008D79BB /* HomeScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreen.swift; sourceTree = "<group>"; };
 		B70E24482634BE3F008D79BB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		B70E244A2634BE40008D79BB /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B70E244D2634BE40008D79BB /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B70E244F2634BE40008D79BB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B70E24562634BE4F008D79BB /* GoogleService-Info-2.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info-2.plist"; path = "../../../../Downloads/GoogleService-Info-2.plist"; sourceTree = "<group>"; };
+		B70E246F2634C45D008D79BB /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
+		B70E24732634C469008D79BB /* RegistrationViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RegistrationViewController.swift; sourceTree = "<group>"; };
+		B70E24762634C483008D79BB /* DatabaseManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseManager.swift; sourceTree = "<group>"; };
+		B70E248B263505B1008D79BB /* Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extensions.swift; sourceTree = "<group>"; };
+		B70E24AD2637A74C008D79BB /* AlertFunctions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertFunctions.swift; sourceTree = "<group>"; };
+		B70E24D4263E565F008D79BB /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = "GoogleService-Info.plist"; path = "../../../../Downloads/GoogleService-Info.plist"; sourceTree = "<group>"; };
+		B70E24E9264088C5008D79BB /* Structs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Structs.swift; sourceTree = "<group>"; };
+		B70E24EC2640C96F008D79BB /* SettingsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewController.swift; sourceTree = "<group>"; };
+		B70E25062640F50A008D79BB /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
+		B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTableViewCell.swift; sourceTree = "<group>"; };
 		F747B4FB613B905E2DF12BEB /* Pods-SecretSantaApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretSantaApp.release.xcconfig"; path = "Target Support Files/Pods-SecretSantaApp/Pods-SecretSantaApp.release.xcconfig"; sourceTree = "<group>"; };
 		F9B87715DB645009E480207F /* Pods_SecretSantaApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecretSantaApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -50,7 +68,6 @@
 				A1B6DE76E04BE204D5011A19 /* Pods-SecretSantaApp.debug.xcconfig */,
 				F747B4FB613B905E2DF12BEB /* Pods-SecretSantaApp.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -83,16 +100,57 @@
 		B70E24402634BE3F008D79BB /* SecretSantaApp */ = {
 			isa = PBXGroup;
 			children = (
-				B70E24412634BE3F008D79BB /* AppDelegate.swift */,
-				B70E24432634BE3F008D79BB /* SceneDelegate.swift */,
-				B70E24452634BE3F008D79BB /* ViewController.swift */,
+				B70E24D4263E565F008D79BB /* GoogleService-Info.plist */,
+				B70E246D2634C398008D79BB /* Models */,
+				B70E246C2634C38E008D79BB /* Resources */,
+				B70E246B2634C385008D79BB /* ViewControllers */,
 				B70E24472634BE3F008D79BB /* Main.storyboard */,
 				B70E244A2634BE40008D79BB /* Assets.xcassets */,
 				B70E244C2634BE40008D79BB /* LaunchScreen.storyboard */,
 				B70E244F2634BE40008D79BB /* Info.plist */,
-				B70E24562634BE4F008D79BB /* GoogleService-Info-2.plist */,
 			);
 			path = SecretSantaApp;
+			sourceTree = "<group>";
+		};
+		B70E246B2634C385008D79BB /* ViewControllers */ = {
+			isa = PBXGroup;
+			children = (
+				B70E246E2634C3AF008D79BB /* Login-Registration */,
+				B70E25062640F50A008D79BB /* TabBarController.swift */,
+				B70E24452634BE3F008D79BB /* HomeScreen.swift */,
+				B70E24EC2640C96F008D79BB /* SettingsViewController.swift */,
+			);
+			path = ViewControllers;
+			sourceTree = "<group>";
+		};
+		B70E246C2634C38E008D79BB /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				B70E24412634BE3F008D79BB /* AppDelegate.swift */,
+				B70E24432634BE3F008D79BB /* SceneDelegate.swift */,
+				B70E24762634C483008D79BB /* DatabaseManager.swift */,
+				B70E248B263505B1008D79BB /* Extensions.swift */,
+				B70E24AD2637A74C008D79BB /* AlertFunctions.swift */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		B70E246D2634C398008D79BB /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				B70E24E9264088C5008D79BB /* Structs.swift */,
+				B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		B70E246E2634C3AF008D79BB /* Login-Registration */ = {
+			isa = PBXGroup;
+			children = (
+				B70E246F2634C45D008D79BB /* LoginViewController.swift */,
+				B70E24732634C469008D79BB /* RegistrationViewController.swift */,
+			);
+			path = "Login-Registration";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -155,8 +213,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B70E244E2634BE40008D79BB /* LaunchScreen.storyboard in Resources */,
+				B70E24D5263E565F008D79BB /* GoogleService-Info.plist in Resources */,
 				B70E244B2634BE40008D79BB /* Assets.xcassets in Resources */,
-				B70E24572634BE4F008D79BB /* GoogleService-Info-2.plist in Resources */,
 				B70E24492634BE3F008D79BB /* Main.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -210,9 +268,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B70E24462634BE3F008D79BB /* ViewController.swift in Sources */,
+				B70E251F2641C3A0008D79BB /* HomeScreenTableViewCell.swift in Sources */,
+				B70E24EA264088C5008D79BB /* Structs.swift in Sources */,
+				B70E24AE2637A74C008D79BB /* AlertFunctions.swift in Sources */,
+				B70E25072640F50A008D79BB /* TabBarController.swift in Sources */,
+				B70E24ED2640C96F008D79BB /* SettingsViewController.swift in Sources */,
+				B70E24702634C45D008D79BB /* LoginViewController.swift in Sources */,
+				B70E24462634BE3F008D79BB /* HomeScreen.swift in Sources */,
+				B70E24772634C483008D79BB /* DatabaseManager.swift in Sources */,
 				B70E24422634BE3F008D79BB /* AppDelegate.swift in Sources */,
 				B70E24442634BE3F008D79BB /* SceneDelegate.swift in Sources */,
+				B70E24742634C469008D79BB /* RegistrationViewController.swift in Sources */,
+				B70E248C263505B1008D79BB /* Extensions.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
