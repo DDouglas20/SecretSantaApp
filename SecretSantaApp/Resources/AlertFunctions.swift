@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import FirebaseAuth
 
 extension UIViewController {
     
@@ -63,6 +64,16 @@ extension UIViewController {
         return true
     }
     
+    func maxRoomsCreated() {
+        let alert = UIAlertController(title: "Limit Reached",
+                                      message: "You Have Created the Max Number of Groups",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss",
+                                      style: .cancel,
+                                      handler: nil))
+        present(alert, animated: true)
+    }
+    
     func userExistsError() {
         let alert = UIAlertController(title: "Error",
                                       message: "This user already exists",
@@ -73,5 +84,33 @@ extension UIViewController {
         present(alert, animated: true)
         
         
+    }
+    
+    func logOut() {
+        let actionSheet = UIAlertController(title: "Log Out",
+                                      message: "Are you sure you want to logout?",
+                                      preferredStyle: .actionSheet)
+        actionSheet.addAction(UIAlertAction(title: "Log Out",
+                                            style: .destructive,
+                                            handler: { [weak self] _ in
+                                                
+                                                // Log out of firebase
+                                                do {
+                                                    try FirebaseAuth.Auth.auth().signOut()
+                                                    
+                                                    let vc = LoginViewController()
+                                                    let nav = UINavigationController(rootViewController: vc)
+                                                    nav.modalPresentationStyle =  .fullScreen
+                                                    self?.present(nav, animated: true)
+                                                }
+                                                catch {
+                                                    print("Could not log out")
+                                                }
+                                                
+                                            }))
+        actionSheet.addAction(UIAlertAction(title: "Cancel",
+                                            style: .cancel,
+                                            handler: nil))
+        present(actionSheet, animated: true)
     }
 }

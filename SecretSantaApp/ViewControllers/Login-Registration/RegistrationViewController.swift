@@ -153,12 +153,8 @@ class RegistrationViewController: UIViewController {
                                       height: 50)
     }
 
-}
-
-// MARK: Functions
-
-extension RegistrationViewController: UITextFieldDelegate {
     
+    //MARK: Class Functions
     @objc private func registerButtonTapped() {
         
         // Dismiss keyboard when tapped
@@ -228,6 +224,15 @@ extension RegistrationViewController: UITextFieldDelegate {
         })
         
     }
+}
+
+
+
+
+//MARK: Extensions
+extension RegistrationViewController: UITextFieldDelegate {
+    
+    
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         

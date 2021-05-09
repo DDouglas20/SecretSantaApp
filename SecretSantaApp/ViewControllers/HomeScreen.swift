@@ -10,9 +10,18 @@ import FirebaseAuth
 
 class HomeScreen: UIViewController {
     
-    var data = [HomeScreenViewModel]()
+    // MARK: Variable Declaration
+    private let userEmail = CacheManager.getEmailFromCache()
     
-    var info = [HomeScreenViewModel]()
+    private var indexPathName = String()
+    
+    private var data = [HomeScreenViewModel]()
+    
+    private var collectedFirebaseArray = [String: String]()
+    
+    private var userGroups = [String: String]()
+    
+    var userName = String()
     
     private let tableView: UITableView  = {
         
@@ -23,45 +32,26 @@ class HomeScreen: UIViewController {
         return tableView
     }()
     
-    private var userName: String = {
-        var username = String()
-        let email = UserDefaults.standard.value(forKey: "email") as! String
-        DatabaseManager.shared.getName(with: email, completion: { result in
-            switch result {
-            case .success(let data):
-                guard let userData = data as? [String: Any],
-                      let name = userData["name"] as? String else {
-                        print("data was empty")
-                        return
-                }
-                username = name 
-                //print("This is name: \(name)")
-            case .failure(let error):
-                print("Failed to get user's name: \(error)")
-            }
-        })
-        
-        return username
-    }()
     
-    private var welcomeLabel: UILabel {
-        let label = UILabel()
-        label.text = "Welcome " + userName
+    /*private var welcomeLabel: String {
+        var label = String()
+        label = "Welcome " + userName
         
         return label
-    }
+    }*/
     
-    
+    // MARK: UI Code
     override func viewDidLoad() {
         super.viewDidLoad()
-        title = "Home Screen"
+        
         let titleAttribute = [NSAttributedString.Key.foregroundColor:UIColor.white]
         //self.navigationController?.navigationBar.titleTextAttributes = titleAttribute
         
         // View Appearance
         self.tableView.backgroundColor = .black
         self.tableView.separatorColor = .white
-        navigationItem.largeTitleDisplayMode = .always
+        //navigationItem.largeTitleDisplayMode = .always
+
         
         // Nav Bar Items
         navigationItem.rightBarButtonItem = UIBarButtonItem(image: UIImage(systemName: "person.fill.badge.plus"),
@@ -78,6 +68,14 @@ class HomeScreen: UIViewController {
         data.append(HomeScreenViewModel(viewModelType: .section,
                                         title: "Your groups: ",
                                         handler: nil))
+        showUserGroups(email: userEmail, completion: { [weak self] bool in
+            
+            if bool == true {
+                self?.data.append(HomeScreenViewModel(viewModelType: .section,
+                                                title: "Joined Groups: ",
+                                                handler: nil))
+            }
+        })
         
         
         
@@ -92,15 +90,26 @@ class HomeScreen: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
-        /*do {
-           try FirebaseAuth.Auth.auth().signOut()
-        }
-        catch {
-            print("already logged out")
-        }*/
     }
     
     // MARK: Home Screen Functions
+    private func getUserName(completion: @escaping (Result<String, Error>) -> Void) {
+        let email = UserDefaults.standard.value(forKey: "email") as! String
+        DatabaseManager.shared.getName(with: email, completion: { [weak self] result in
+            switch result {
+            case .success(let data):
+                guard let userData = data as? [String: Any],
+                      let name = userData["name"] as? String else {
+                        print("data was empty")
+                        return
+                }
+                completion(.success(name))
+            case .failure(let error):
+                print("Failed to get user's name: \(error)")
+                completion(.failure(error))
+            }
+        })
+    }
 
     private func validateAuth() {
         
@@ -113,17 +122,114 @@ class HomeScreen: UIViewController {
         
     }
     
+    private func showUserGroups(email: String, completion: @escaping (Bool) -> Void) {
+        DatabaseManager.shared.getCreatedGroups(with: email, completion: { [weak self] result in
+            switch result {
+            case .success(let dictionary):
+                let userData = dictionary
+                for (group) in userData {
+                    if group != "" {
+                        self?.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                              title: group,
+                                                              handler: nil))
+                    }
+                }
+                /*self?.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                      title: userData["group1"] ?? "empty",
+                                                      handler: nil))
+                self?.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                      title: userData["group2"] ?? "empty",
+                                                      handler: nil))
+                self?.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                      title: userData["group3"] ?? "empty",
+                                                      handler: nil))
+                self?.userGroups =  userData*/
+                completion(true)
+            case .failure(let error):
+                print(error)
+                completion(false)
+            }
+            self?.tableView.reloadData()
+        })
+        
+    }
+    
+    
+    @objc private func tapCreateRoom() {
+        let vc = CreateGroupViewController()
+        vc.title = "Create Group"
+        navigationController?.pushViewController(vc, animated: true)
+        
+    }
+    
+    // MARK: Table View Creation
+    
     private func initTableView() {
         tableView.delegate = self
         tableView.dataSource = self
+        tableView.tableHeaderView = createTableHeader()
     }
     
-    @objc private func tapCreateRoom() {
+    private func createTableHeader() -> UIView? {
+        guard let email = UserDefaults.standard.value(forKey: "email") as? String else {
+            print("Could not get user email")
+            return nil
+        }
+        let pfp = email + "_profile_picture.png"
+        let filepath = "images/" + pfp
         
+        // Create the table header
+        let headerView = UIView(frame: CGRect(x: 0,
+                                               y: 0,
+                                               width: self.view.width,
+                                               height: 300))
+        headerView.backgroundColor = .black
+        
+        // Create the welcome label
+        var headerLabel = UILabel(frame: CGRect(x: (headerView.width - 278),
+                                                y: 50,
+                                                width: headerView.width,
+                                                height: 75))
+        //print(userName)
+        getUserName(completion: { [weak self] result in
+            switch result {
+            case .success(let name):
+                headerLabel.text = "Welcome " + name
+                return
+            case .failure(let error):
+                print("Could not find user")
+                return
+            }
+            
+        })
+        headerLabel.textColor = .white
+        headerLabel.font = UIFont.systemFont(ofSize: 30)
+        
+        
+        // Create the user's profile picture
+        let headerImage = UIImageView(frame: CGRect(x: (headerView.width - 150)/2,
+                                                    y: 125,
+                                                    width: 150,
+                                                    height: 150))
+        headerImage.contentMode = .scaleAspectFill
+        headerImage.layer.borderColor = UIColor.white.cgColor
+        headerImage.layer.borderWidth = 3
+        headerImage.layer.masksToBounds = true
+        headerImage.layer.cornerRadius = headerImage.width/2
+        headerImage.image = UIImage(systemName: "person.circle.fill")
+        headerImage.tintColor = .white
+        
+        // add the subviews
+        headerView.addSubview(headerImage)
+        headerView.addSubview(headerLabel)
+        
+        
+        return headerView
     }
     
 }
 
+// MARK: Table View Functions
 extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
@@ -137,13 +243,17 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        print("This is count: \(data.count)")
         let viewModel = data[indexPath.row]
         let cell = tableView.dequeueReusableCell(withIdentifier: HomeScreenTableViewCell.identifier, for: indexPath) as! HomeScreenTableViewCell
         cell.setUp(with: viewModel)
         return cell
     }
     
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        indexPathName = data[indexPath.row].title
+        data[indexPath.row].handler?()
+    }
     
 }
 

@@ -25,6 +25,11 @@
 		B70E25072640F50A008D79BB /* TabBarController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25062640F50A008D79BB /* TabBarController.swift */; };
 		B70E251F2641C3A0008D79BB /* HomeScreenTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */; };
 		B70E25222641DD2F008D79BB /* HomeScreenViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */; };
+		B70E2538264470FB008D79BB /* SettingsViewModelType.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E2537264470FB008D79BB /* SettingsViewModelType.swift */; };
+		B70E253C26447233008D79BB /* SettingsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E253B26447233008D79BB /* SettingsTableViewCell.swift */; };
+		B70E25412645C784008D79BB /* CreateGroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25402645C784008D79BB /* CreateGroupViewController.swift */; };
+		B70E25442645FDF6008D79BB /* CacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25432645FDF6008D79BB /* CacheManager.swift */; };
+		B70E254726471975008D79BB /* GroupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E254626471975008D79BB /* GroupViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -48,6 +53,11 @@
 		B70E25062640F50A008D79BB /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
 		B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenTableViewCell.swift; sourceTree = "<group>"; };
 		B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeScreenViewModel.swift; sourceTree = "<group>"; };
+		B70E2537264470FB008D79BB /* SettingsViewModelType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModelType.swift; sourceTree = "<group>"; };
+		B70E253B26447233008D79BB /* SettingsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsTableViewCell.swift; sourceTree = "<group>"; };
+		B70E25402645C784008D79BB /* CreateGroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateGroupViewController.swift; sourceTree = "<group>"; };
+		B70E25432645FDF6008D79BB /* CacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CacheManager.swift; sourceTree = "<group>"; };
+		B70E254626471975008D79BB /* GroupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupViewController.swift; sourceTree = "<group>"; };
 		F747B4FB613B905E2DF12BEB /* Pods-SecretSantaApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretSantaApp.release.xcconfig"; path = "Target Support Files/Pods-SecretSantaApp/Pods-SecretSantaApp.release.xcconfig"; sourceTree = "<group>"; };
 		F9B87715DB645009E480207F /* Pods_SecretSantaApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecretSantaApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -120,6 +130,7 @@
 				B70E246E2634C3AF008D79BB /* Login-Registration */,
 				B70E25062640F50A008D79BB /* TabBarController.swift */,
 				B70E24452634BE3F008D79BB /* HomeScreen.swift */,
+				B70E253F2645C3C9008D79BB /* SecretSantaGroups */,
 				B70E24EC2640C96F008D79BB /* SettingsViewController.swift */,
 			);
 			path = ViewControllers;
@@ -133,6 +144,7 @@
 				B70E24762634C483008D79BB /* DatabaseManager.swift */,
 				B70E248B263505B1008D79BB /* Extensions.swift */,
 				B70E24AD2637A74C008D79BB /* AlertFunctions.swift */,
+				B70E25432645FDF6008D79BB /* CacheManager.swift */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -143,6 +155,8 @@
 				B70E24E9264088C5008D79BB /* Structs.swift */,
 				B70E25212641DD2F008D79BB /* HomeScreenViewModel.swift */,
 				B70E251E2641C3A0008D79BB /* HomeScreenTableViewCell.swift */,
+				B70E2537264470FB008D79BB /* SettingsViewModelType.swift */,
+				B70E253B26447233008D79BB /* SettingsTableViewCell.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -154,6 +168,15 @@
 				B70E24732634C469008D79BB /* RegistrationViewController.swift */,
 			);
 			path = "Login-Registration";
+			sourceTree = "<group>";
+		};
+		B70E253F2645C3C9008D79BB /* SecretSantaGroups */ = {
+			isa = PBXGroup;
+			children = (
+				B70E25402645C784008D79BB /* CreateGroupViewController.swift */,
+				B70E254626471975008D79BB /* GroupViewController.swift */,
+			);
+			path = SecretSantaGroups;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -271,14 +294,19 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B70E254726471975008D79BB /* GroupViewController.swift in Sources */,
 				B70E251F2641C3A0008D79BB /* HomeScreenTableViewCell.swift in Sources */,
 				B70E24EA264088C5008D79BB /* Structs.swift in Sources */,
+				B70E2538264470FB008D79BB /* SettingsViewModelType.swift in Sources */,
+				B70E25442645FDF6008D79BB /* CacheManager.swift in Sources */,
 				B70E24AE2637A74C008D79BB /* AlertFunctions.swift in Sources */,
 				B70E25072640F50A008D79BB /* TabBarController.swift in Sources */,
 				B70E24ED2640C96F008D79BB /* SettingsViewController.swift in Sources */,
 				B70E24702634C45D008D79BB /* LoginViewController.swift in Sources */,
 				B70E24462634BE3F008D79BB /* HomeScreen.swift in Sources */,
+				B70E253C26447233008D79BB /* SettingsTableViewCell.swift in Sources */,
 				B70E24772634C483008D79BB /* DatabaseManager.swift in Sources */,
+				B70E25412645C784008D79BB /* CreateGroupViewController.swift in Sources */,
 				B70E24422634BE3F008D79BB /* AppDelegate.swift in Sources */,
 				B70E25222641DD2F008D79BB /* HomeScreenViewModel.swift in Sources */,
 				B70E24442634BE3F008D79BB /* SceneDelegate.swift in Sources */,

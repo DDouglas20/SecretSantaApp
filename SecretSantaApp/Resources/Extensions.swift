@@ -33,7 +33,7 @@ extension UIView {
     public var right: CGFloat {
         return frame.size.width + frame.origin.x
     }
-    
+   
 }
 
 extension UIViewController {
