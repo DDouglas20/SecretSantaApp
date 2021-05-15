@@ -169,7 +169,32 @@ class CreateGroupViewController: UIViewController {
     }
     
     //MARK: Class functions
-    @objc func createButtonTapped() {
+    
+    private func createGroupStruct(groupName: String, completion: @escaping (Result<groupStructure,Error>) -> Void) {
+        var name = String()
+        DatabaseManager.shared.getName(with: email, completion: { result in
+            switch result {
+            case .success(let data):
+                guard let userData = data as? String else {
+                    print("This is data: \(data)")
+                    print("Could not get name from database")
+                    return
+                }
+                name = userData
+            case .failure(let error):
+                print("Could not get name: \(error)")
+                completion(.failure(DatabaseError.failedToFetch))
+                
+            }
+            print("This is name: \(name)")
+            let groupStruct = groupStructure(groupName: groupName, groupMembers: [name], listOfGifts: [""])
+            completion(.success(groupStruct))
+        })
+        
+        
+    }
+    
+    @objc private func createButtonTapped() {
         // unwrap
         guard let groupName = groupNameField.text,
               !groupName.isEmpty else {
@@ -178,6 +203,9 @@ class CreateGroupViewController: UIViewController {
         let userEmail = email
         var newArray = [String]()
         var position = Int()
+        var keepInserting = true
+        var shouldLoop = true
+        //var aSyncBool = false
         // Check to see if the user has any rooms free
         DatabaseManager.shared.getCreatedGroups(with: email, completion: { [weak self] result in
             switch result {
@@ -185,24 +213,27 @@ class CreateGroupViewController: UIViewController {
                 var x = 0
                 var isFull = true
                 for name in data {
-                    print("this is name: \(name)")
                     newArray.append(name)
-                    if name == "" {
+                    if name == "" && x <= 2 && keepInserting {
                         newArray[x] = groupName
                         isFull = false
+                        keepInserting = false
                         if x < 2 {
                             position = x
                         }
-                        break
                     }
                     x += 1
+                    if x >= 2 {
+                        shouldLoop = false
+                    }
                 }
-                print(position)
-                while position < 2 {
-                    newArray.append("")
-                    position += 1
+                if shouldLoop {
+                    while position < 2 {
+                        newArray.append("")
+                        position += 1
+                    }
                 }
-                if isFull {
+                if isFull == true {
                     // add uialert
                     self?.maxRoomsCreated()
                     print("no space to create room")
@@ -214,11 +245,56 @@ class CreateGroupViewController: UIViewController {
                     }
                     DatabaseManager.shared.createGroup(array: newArray, email: userEmail, completion: { [weak self] bool in
                         if bool {
+                            guard let strongSelf = self else {
+                                return
+                            }
+                            // Add group to the array
+                            //let vc = HomeScreen()
+                            //vc.data.append(HomeScreenViewModel(viewModelType: .group, title: groupName, handler: nil))
+                            
+                            // Add group to the array
+                            /*HomeScreen().data.append(HomeScreenViewModel(viewModelType: .group,
+                                                                         title: groupName,
+                                                                         handler: nil))*/
                             // Push group VC
-                            self?.navigationController?.popToRootViewController(animated: true)
-                            let vc = GroupViewController()
-                            let navVC = UINavigationController(rootViewController: vc)
-                            self?.present(navVC, animated: true)
+                            
+                            // Create groupID and insert it into user branch
+                            let groupID = DatabaseManager.shared.createGroupID(groupName: groupName, email: userEmail)
+                            DatabaseManager.shared.insertGroupID(email: userEmail, groupID: groupID, groupName: groupName, completion: { bool in
+                                if bool {
+                                    // Insert the group into the collection of groups
+                                    strongSelf.createGroupStruct(groupName: groupName, completion: { result in
+                                        switch result {
+                                        case .success(let groupStruct):
+                                            DatabaseManager.shared.insertGroupStructure(groupStruct: groupStruct, groupID: groupID, completion: { bool in
+                                                if bool {
+                                                    print("Successfully added group structure")
+                                                    self?.navigationController?.popViewController(animated: true)
+                                                }
+                                                else {
+                                                    DatabaseManager.shared.deleteGroup(email: strongSelf.email, groupName: groupName, completion: { bool in})
+                                                    DatabaseManager.shared.deleteGroupID(email: strongSelf.email, row: x - 1, completion: { bool in})
+                                                    print("Could not insert groupStructure")
+                                                }
+                                            })
+                                        case .failure(let error):
+                                            print("Could not create groupStruct: \(error)")
+                                        }
+                                    })
+                                    return
+                                }
+                                else {
+                                    print("Error insterting into database")
+                                    return
+                                }
+                            })
+                            //self?.navigationController?.popViewController(animated: true)
+                            //strongSelf.successfullyAddedGroup()
+                            //let vc = GroupViewController()
+                            
+                            
+                            
+                            
                         }
                         else {
                             // failed to insert
@@ -234,6 +310,8 @@ class CreateGroupViewController: UIViewController {
         })
     }
 }
+
+
 
 // MARK: Extensions
 extension CreateGroupViewController: UITextFieldDelegate {

@@ -15,11 +15,15 @@ class HomeScreen: UIViewController {
     
     private var indexPathName = String()
     
+    private var shouldAppendAtEnd = true
+    
     private var data = [HomeScreenViewModel]()
     
     private var collectedFirebaseArray = [String: String]()
     
     private var userGroups = [String: String]()
+    
+    private var isCreator = Bool()
     
     var userName = String()
     
@@ -65,18 +69,18 @@ class HomeScreen: UIViewController {
         initTableView()
         
         // Table View items
-        data.append(HomeScreenViewModel(viewModelType: .section,
-                                        title: "Your groups: ",
-                                        handler: nil))
-        showUserGroups(email: userEmail, completion: { [weak self] bool in
+        /*data.append(HomeScreenViewModel(viewModelType: .section,
+                                        title: "Your Groups: ",
+                                        handler: nil))*/
+        /*showUserGroups(email: userEmail, completion: { [weak self] bool in
             
             if bool == true {
                 self?.data.append(HomeScreenViewModel(viewModelType: .section,
                                                 title: "Joined Groups: ",
                                                 handler: nil))
             }
-        })
-        
+        })*/
+        updateTableView()
         
         
     }
@@ -90,6 +94,7 @@ class HomeScreen: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
+        tableView.reloadData()
     }
     
     // MARK: Home Screen Functions
@@ -98,11 +103,12 @@ class HomeScreen: UIViewController {
         DatabaseManager.shared.getName(with: email, completion: { [weak self] result in
             switch result {
             case .success(let data):
-                guard let userData = data as? [String: Any],
-                      let name = userData["name"] as? String else {
+                guard let userData = data as? String else {
                         print("data was empty")
                         return
                 }
+                let name = userData
+                UserDefaults.standard.setValue(name, forKey: "name")
                 completion(.success(name))
             case .failure(let error):
                 print("Failed to get user's name: \(error)")
@@ -122,7 +128,7 @@ class HomeScreen: UIViewController {
         
     }
     
-    private func showUserGroups(email: String, completion: @escaping (Bool) -> Void) {
+    public func showUserGroups(email: String, completion: @escaping (Bool) -> Void) {
         DatabaseManager.shared.getCreatedGroups(with: email, completion: { [weak self] result in
             switch result {
             case .success(let dictionary):
@@ -134,26 +140,18 @@ class HomeScreen: UIViewController {
                                                               handler: nil))
                     }
                 }
-                /*self?.data.append(HomeScreenViewModel(viewModelType: .group,
-                                                      title: userData["group1"] ?? "empty",
-                                                      handler: nil))
-                self?.data.append(HomeScreenViewModel(viewModelType: .group,
-                                                      title: userData["group2"] ?? "empty",
-                                                      handler: nil))
-                self?.data.append(HomeScreenViewModel(viewModelType: .group,
-                                                      title: userData["group3"] ?? "empty",
-                                                      handler: nil))
-                self?.userGroups =  userData*/
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
                 completion(true)
             case .failure(let error):
                 print(error)
                 completion(false)
             }
-            self?.tableView.reloadData()
+            
         })
         
     }
-    
     
     @objc private func tapCreateRoom() {
         let vc = CreateGroupViewController()
@@ -161,6 +159,35 @@ class HomeScreen: UIViewController {
         navigationController?.pushViewController(vc, animated: true)
         
     }
+    
+    private func updateTableView() {
+        DatabaseManager.shared.listenForGroupChanges(email: userEmail, completion: { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            self?.data = [HomeScreenViewModel]()
+            self?.data.append(HomeScreenViewModel(viewModelType: .section, title: "Your Groups: ", handler: nil))
+            switch result {
+            case .success(let array):
+                for group in array {
+                    if group != "" {
+                        self?.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                              title: group,
+                                                              handler: nil))
+                    }
+                }
+                self?.data.append(HomeScreenViewModel(viewModelType: .section, title: "Joined Groups: ", handler: nil))
+                DispatchQueue.main.async {
+                    self?.tableView.reloadData()
+                }
+                
+            case .failure(let error):
+                print("Could not get values: \(error)")
+                return
+            }
+        })
+    }
+    
     
     // MARK: Table View Creation
     
@@ -195,6 +222,7 @@ class HomeScreen: UIViewController {
             switch result {
             case .success(let name):
                 headerLabel.text = "Welcome " + name
+                self?.tableView.reloadData()
                 return
             case .failure(let error):
                 print("Could not find user")
@@ -250,10 +278,86 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        indexPathName = data[indexPath.row].title
-        data[indexPath.row].handler?()
+        if data[indexPath.row].viewModelType != .section {
+            tableView.deselectRow(at: indexPath, animated: true)
+            indexPathName = data[indexPath.row].title
+            data[indexPath.row].handler?()
+            
+            // Check if it's a created group or joined group
+            var increment = 0
+            var joinedGroupsRow = 1
+            for title in data {
+                if title.title == "Joined Groups: " {
+                    joinedGroupsRow = increment
+                }
+                increment += 1
+            }
+            if indexPath.row > joinedGroupsRow {
+                isCreator = false
+                // Get the groupID from database. This person is not group leader
+                // databse.child(email/joinedGroups)
+            }
+            else { // This is a created group. Get the info
+                isCreator = true
+                // Get group ID
+                let index = indexPath.row - 1
+                DatabaseManager.shared.getCreatedGroupsID(email: userEmail, row: index, completion: { [weak self] result in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    switch result {
+                    case .success(let groupID):
+                        // Push vc with groupID
+                        let vc = GroupViewController(email: strongSelf.userEmail, id: groupID, isCreator: strongSelf.isCreator)
+                        strongSelf.navigationController?.pushViewController(vc, animated: true)
+                    case .failure(let error):
+                        print("Could not get createdGroupsID: \(error)")
+                        return
+                    }
+                })
+                
+            }
+        }
+        
     }
+    
+    func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        if data[indexPath.row].viewModelType != .section {
+            return .delete
+        }
+        return .none
+    }
+    
+    /*func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCell.EditingStyle, forRowAt indexPath: IndexPath) {
+        if editingStyle == .delete {
+            // Delete from database first
+            // If data cannot be deleted, push error instead
+            let groupName = data[indexPath.row].title
+            DatabaseManager.shared.deleteGroup(email: userEmail, groupName: groupName, completion: { [weak self] bool in
+                guard let strongSelf = self else {
+                    return
+                }
+                if bool {
+                    tableView.beginUpdates()
+                    self?.data.remove(at: indexPath.row)
+                    DatabaseManager.shared.deleteGroupID(email: strongSelf.userEmail, row: indexPath.row, completion: { bool in
+                        if !bool {
+                            self?.couldNotDeleteGroup()
+                        }
+                    })
+                    tableView.deleteRows(at: [indexPath], with: .left)
+                    tableView.endUpdates()
+                }
+                else {
+                    self?.couldNotDeleteGroup()
+                }
+            })
+            
+            
+            
+        }
+    }*/
     
 }
 

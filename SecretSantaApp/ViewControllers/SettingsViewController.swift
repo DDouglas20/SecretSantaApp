@@ -35,6 +35,9 @@ class SettingsViewController: UIViewController {
         view.addSubview(tableView)
         
         // Table View Data
+        tableViewData.append(SettingsViewModel(viewModelType: .setting, title: "Change Name", handler: { 
+            
+        }))
         tableViewData.append(SettingsViewModel(viewModelType: .logout, title: "Log Out", handler: { [weak self] in
             self?.removeDataFromCache()
             self?.logOut()
@@ -55,11 +58,13 @@ class SettingsViewController: UIViewController {
     }
     
     private func removeDataFromCache() {
-        let defaults = UserDefaults.standard
-        let dictionary = defaults.dictionaryRepresentation()
-        dictionary.keys.forEach( { key in
-            defaults.removeObject(forKey: key)
-        })
+        if let bundleID = Bundle.main.bundleIdentifier {
+            UserDefaults.standard.removePersistentDomain(forName: bundleID)
+            print("Successfully removed userdefaults values")
+        }
+        else {
+            print("Could not remove userdefaults values")
+        }
     }
     
 

@@ -10,7 +10,7 @@ import UIKit
 import FirebaseAuth
 
 extension UIViewController {
-    
+    // MARK: Failure Alerts
     func alertUserLoginError() {
         let alert = UIAlertController(title: "Error",
                                       message: "Login or Username invalid. Please try again",
@@ -64,9 +64,19 @@ extension UIViewController {
         return true
     }
     
+    func couldNotDeleteGroup() {
+        let alert = UIAlertController(title: "Error",
+                                      message: "Could not delete group. Please try again",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss",
+                                      style: .cancel,
+                                      handler: nil))
+        present(alert, animated: true)
+    }
+    
     func maxRoomsCreated() {
         let alert = UIAlertController(title: "Limit Reached",
-                                      message: "You Have Created the Max Number of Groups",
+                                      message: "You Have Created the Max Number of Groups Allowed",
                                       preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss",
                                       style: .cancel,
@@ -112,5 +122,12 @@ extension UIViewController {
                                             style: .cancel,
                                             handler: nil))
         present(actionSheet, animated: true)
+    }
+    
+    // MARK: Success Alerts
+    func successfullyAddedGroup() {
+        let alert = UIAlertController(title: "Success!", message: "Successfully Created Group", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true)
     }
 }

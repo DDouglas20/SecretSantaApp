@@ -22,7 +22,15 @@ struct SecretSantaUser {
 }
 
 struct groupStructure {
-    let groupID: String
     let groupName: String
     let groupMembers: [String]
+    let listOfGifts: [Any]
 }
+
+struct listOfGifts {
+    let URLs: URL?
+    let text: String?
+    let photoURL: String? //Need to find out what type photos are
+}
+
+

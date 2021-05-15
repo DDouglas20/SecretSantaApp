@@ -180,7 +180,7 @@ class RegistrationViewController: UIViewController {
         loadingSpinner.show(in: view)
         
         // Register User
-        let fireBaseEmail = DatabaseManager.firebaseEmail(emailAddress: email)
+        let fireBaseEmail = DatabaseManager.firebaseEmail(emailAddress: email.lowercased())
         DatabaseManager.shared.userExists(with: fireBaseEmail, completion: { [weak self] exists in
             
             DispatchQueue.main.async {
@@ -192,9 +192,10 @@ class RegistrationViewController: UIViewController {
                 self?.userExistsError()
                 return
             }
-            
+    
             print("This is email: \(email)")
             print("This is password: \(pass)")
+            
             
             
             FirebaseAuth.Auth.auth().createUser(withEmail: email, password: pass, completion: { authResult, error in
