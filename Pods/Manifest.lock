@@ -1,4 +1,5 @@
 PODS:
+  - EzPopup (1.2)
   - Firebase/Auth (7.11.0):
     - Firebase/CoreOnly
     - FirebaseAuth (~> 7.11.0)
@@ -105,6 +106,7 @@ PODS:
   - PromisesObjC (1.2.12)
 
 DEPENDENCIES:
+  - EzPopup
   - Firebase/Auth
   - Firebase/Core
   - Firebase/Database
@@ -113,6 +115,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - EzPopup
     - Firebase
     - FirebaseAnalytics
     - FirebaseAuth
@@ -131,6 +134,7 @@ SPEC REPOS:
     - PromisesObjC
 
 SPEC CHECKSUMS:
+  EzPopup: 989ac21992a82ad6d1245c747a78bf3833279ef0
   Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
   FirebaseAnalytics: cd3bd84d722a24a8923918af8af8e5236f615d77
   FirebaseAuth: 5fe4585c2ed847319f0ea68bd1d82c77e49ff9a0
@@ -148,6 +152,6 @@ SPEC CHECKSUMS:
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
 
-PODFILE CHECKSUM: edb418f3342899b375fe221a3fc5b654370d2a32
+PODFILE CHECKSUM: 9a6127fa08e5cec9ce0cf4ba44997ded4f419042
 
 COCOAPODS: 1.10.1

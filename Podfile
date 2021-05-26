@@ -13,5 +13,6 @@ pod 'Firebase/Database'
 
 # Miscellaneous 
 pod 'JGProgressHUD'
+pod 'EzPopup' 
 
 end

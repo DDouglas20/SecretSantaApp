@@ -96,6 +96,80 @@ extension UIViewController {
         
     }
     
+    func notEnoughUsers() {
+        let alert = UIAlertController(title: "Error",
+                                      message: "You need 3 or more group members to begin",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func groupIDCopied() {
+        let alert = UIAlertController(title: "Copied!",
+                                      message: "Successfully copied groupID",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss",
+                                      style: .cancel,
+                                      handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func couldNotAddItem() {
+        let alert = UIAlertController(title: "Error", message: "Could Not Add Gift", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func couldNotDeleteItem() {
+        let alert = UIAlertController(title: "Error",
+                                      message: "Could not delete gift. Please try again in a few moments",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func deleteGroupWarning(completion: @escaping (Bool) -> Void) {
+        let alert = UIAlertController(title: "Warning",
+                                      message: "Are You Sure You Want to Delete the Group?",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Delete", style: .destructive, handler: { _ in
+            completion(true)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+            completion(false)
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func joinGroupFieldEmpty() {
+        let alert = UIAlertController(title: "Error", message: "Field is Empty", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func joinedGroup() {
+        let alert = UIAlertController(title: "Success", message: "Successfully Joined Group", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { [weak self] _ in
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.navigationController?.popViewController(animated: true)
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func couldNotJoinGroup() {
+        let alert = UIAlertController(title: "Error", message: "Please Make Sure You Have the Correct GroupID", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func userExistsInGroup() {
+        let alert = UIAlertController(title: "Error", message: "You Have Already Joined This Group", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
     func logOut() {
         let actionSheet = UIAlertController(title: "Log Out",
                                       message: "Are you sure you want to logout?",

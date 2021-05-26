@@ -25,7 +25,7 @@ class HomeScreen: UIViewController {
     
     private var isCreator = Bool()
     
-    var userName = String()
+    public var userName = String()
     
     private let tableView: UITableView  = {
         
@@ -161,12 +161,12 @@ class HomeScreen: UIViewController {
     }
     
     private func updateTableView() {
-        DatabaseManager.shared.listenForGroupChanges(email: userEmail, completion: { [weak self] result in
+        DatabaseManager.shared.listenForCreatedGroupChanges(email: userEmail, completion: { [weak self] result in
             guard let strongSelf = self else {
                 return
             }
-            self?.data = [HomeScreenViewModel]()
-            self?.data.append(HomeScreenViewModel(viewModelType: .section, title: "Your Groups: ", handler: nil))
+            strongSelf.data = [HomeScreenViewModel]()
+            strongSelf.data.append(HomeScreenViewModel(viewModelType: .section, title: "Your Groups: ", handler: nil))
             switch result {
             case .success(let array):
                 for group in array {
@@ -176,11 +176,22 @@ class HomeScreen: UIViewController {
                                                               handler: nil))
                     }
                 }
-                self?.data.append(HomeScreenViewModel(viewModelType: .section, title: "Joined Groups: ", handler: nil))
-                DispatchQueue.main.async {
-                    self?.tableView.reloadData()
-                }
-                
+                strongSelf.data.append(HomeScreenViewModel(viewModelType: .section, title: "Joined Groups: ", handler: nil))
+                DatabaseManager.shared.listenForJoinedGroupChanges(email: strongSelf.userEmail, completion: { [weak self] result in
+                    switch result {
+                    case .success(let array):
+                        for group in array.keys {
+                            strongSelf.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                                       title: group,
+                                                                       handler: nil))
+                        }
+                        DispatchQueue.main.async {
+                            self?.tableView.reloadData()
+                        }
+                    case .failure(let error):
+                        print("Could not get joinedGroups: \(error)")
+                    }
+                })
             case .failure(let error):
                 print("Could not get values: \(error)")
                 return
@@ -295,6 +306,20 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
             if indexPath.row > joinedGroupsRow {
                 isCreator = false
                 // Get the groupID from database. This person is not group leader
+                DatabaseManager.shared.getJoinedGroupID(email: userEmail, groupName: indexPathName, completion: { [weak self] result in
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    switch result {
+                    case .success(let groupId):
+                        let vc = GroupViewController(email: strongSelf.userEmail, id: groupId, isCreator: strongSelf.isCreator)
+                        strongSelf.navigationController?.pushViewController(vc, animated: true)
+                    case .failure(let error):
+                        print("Could not get joinedGroups error: \(error)")
+                        return
+                    }
+                })
                 // databse.child(email/joinedGroups)
             }
             else { // This is a created group. Get the info

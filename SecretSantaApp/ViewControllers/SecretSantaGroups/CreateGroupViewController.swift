@@ -12,6 +12,10 @@ class CreateGroupViewController: UIViewController {
     //MARK: Class Variables
     private let email = CacheManager.getEmailFromCache()
     
+    private var groupID = String()
+    
+    private let memberName = CacheManager.getNameFromCache()
+    
     private let scrollView: UIScrollView = {
        let scrollView = UIScrollView()
         scrollView.clipsToBounds = true
@@ -126,6 +130,7 @@ class CreateGroupViewController: UIViewController {
         createGroupButton.addTarget(self,
                                     action: #selector(createButtonTapped),
                                     for: .touchUpInside)
+        joinGroupButton.addTarget(self, action: #selector(joinButtonTapped), for: .touchUpInside)
 
     }
     
@@ -307,6 +312,33 @@ class CreateGroupViewController: UIViewController {
                 return
             }
             
+        })
+    }
+    
+    @objc private func joinButtonTapped() {
+        guard let groupID = joinGroupField.text,
+              !groupID.isEmpty else {
+            joinGroupFieldEmpty()
+            return
+        }
+        
+        DatabaseManager.shared.insertIntoGroup(groupID: groupID, memberName: memberName, email: email, completion: { [weak self] string in
+            let memberExists = "memberExists"
+            let success = "succcess"
+
+            guard let strongSelf = self else {
+                return
+            }
+            
+            if string == success {
+                strongSelf.joinedGroup()
+            }
+            else if string == memberExists {
+                strongSelf.userExistsInGroup()
+            }
+            else {
+                strongSelf.couldNotJoinGroup()
+            }
         })
     }
 }

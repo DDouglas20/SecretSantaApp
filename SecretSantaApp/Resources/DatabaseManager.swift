@@ -92,8 +92,182 @@ extension DatabaseManager {
         
     }
     
-    public func insertIntoGroup(groupID: String) {
+    public func insertIntoGroup(groupID: String, memberName: String, email: String, completion: @escaping (String) -> Void) {
         
+        let memberExists = "memberExists"
+        let success = "succcess"
+        let databaseError = "error"
+        
+        database.child("Groups/\(groupID)/groupMembers").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            guard var value = snapshot.value as? [String] else {
+                completion(databaseError)
+                return
+            }
+            for name in value {
+                if name == memberName {
+                    completion(memberExists)
+                    return
+                }
+            }
+            value.append(memberName)
+            strongSelf.database.child("Groups/\(groupID)/groupMembers").setValue(value, withCompletionBlock: { error, _ in
+                guard error == nil else {
+                    completion(databaseError)
+                    return
+                }
+                strongSelf.database.child("Groups/\(groupID)/groupName").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+                    var groupsDic = [String: String]()
+                    guard let strongSelf = self else {
+                        return
+                    }
+                    
+                    guard let groupName = snapshot.value as? String else {
+                        print("Could not get groupName")
+                        return
+                    }
+                    
+                    groupsDic[groupName] = groupID
+                    print("This is dictionary: \(groupsDic)")
+                    strongSelf.database.child("\(email)/joinedGroups").setValue(groupsDic, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            completion(databaseError)
+                            return
+                        }
+                        completion(success)
+                    })
+                })
+            })
+        })
+        
+    }
+    
+    
+    public func deleteFromGroups(groupID: String, completion: @escaping (Bool) -> Void) {
+        database.child("Groups/\(groupID)").removeValue(completionBlock: { error, _ in
+            guard error == nil else {
+                print("Could not delete group")
+                completion(false)
+                return
+            }
+            completion(true)
+        })
+    }
+    
+    public func insertPairs(groupID: String, pairs: [[String: String]], completion: @escaping (Bool) -> Void) {
+        database.child("Groups/\(groupID)/pairs").setValue(pairs, withCompletionBlock: { error, _ in
+            guard error == nil else {
+                print("Could not insert pairs")
+                return
+            }
+        })
+    }
+    
+    public func getListofGifts(groupID: String, memberName: String, completion: @escaping (Result<[Any],Error>) -> Void) {
+        database.child("Groups/\(groupID)/listOfGifts/\(memberName)").observe(.value, with: { snapshot in
+            guard let value = snapshot.value as? [Any] else {
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(value))
+        })
+    }
+    
+    public func appendGift(groupID: String, items: [Any], memberName: String, completion: @escaping (Bool) -> Void) {
+        database.child("Groups/\(groupID)/listOfGifts/\(memberName)").setValue(items, withCompletionBlock: { error, _ in
+            guard error == nil else {
+                completion(false)
+                print("Could not put gift in array. ")
+                return
+            }
+            completion(true)
+        })
+    }
+    
+    public func deleteGift(groupID: String, memberName: String, arrIndex: Int, completion: @escaping (Bool) -> Void) {
+        database.child("Groups/\(groupID)/listOfGifts/\(memberName)").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let value = snapshot.value as? [Any] else {
+                completion(false)
+                return
+            }
+            var newArray = [Any]()
+            newArray = value
+            newArray.remove(at: arrIndex)
+            strongSelf.database.child("Groups/\(groupID)/listOfGifts/\(memberName)").setValue(newArray, withCompletionBlock: { error, _ in
+                guard error == nil else {
+                    print("Could not delete item from array")
+                    return
+                }
+                completion(true)
+            })
+        })
+    }
+    
+    
+    
+    
+    /*
+     [test, test2, test3, test4]
+     0      1       2       3
+     
+     */
+    
+    
+    public func createPairs(groupID: String, members: [String], completion: @escaping (Bool) -> Void) {
+        var membersCopy = [String]()
+        var pairs = [String: String]()
+        
+        
+        membersCopy = members
+        // let arrayIteration = membersCopy.count
+        for x in membersCopy {
+            pairs[x] = ""
+        }
+        /*for _ in 0..<arrayIteration {
+         let randomIndex = Int.random(in: 0..<membersCopy.count)
+         let randomMember = membersCopy[randomIndex]
+         
+         }*/
+        for x in membersCopy {
+            let randomIndex = Int.random(in: 0..<membersCopy.count)
+            let randomMember = membersCopy[randomIndex]
+            if x != randomMember  {
+                pairs[x] = randomMember
+                membersCopy.remove(at: randomIndex)
+            }
+            else {
+                membersCopy.append(randomMember)
+                membersCopy.remove(at: randomIndex)
+            }
+        }
+        print("These are the pairs of members: \(pairs)")
+        
+        database.child("Groups/\(groupID)/GroupPairs").setValue(pairs, withCompletionBlock: { error, _ in
+            guard error == nil else {
+                print("Could not put pairs into the database")
+                completion(false)
+                return
+            }
+        })
+        
+        
+    }
+    
+    public func getPairs(groupID: String, completion: @escaping (Result<[String: String],Error>) -> Void) {
+        database.child("Groups/\(groupID)/pairs").observeSingleEvent(of: .value, with: { snapshot in
+            guard let value = snapshot.value as? [String: String] else {
+                print("Could not get pairs")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(value))
+        })
     }
     
     public func getGroupName(groupID: String, completion: @escaping (Result<String,Error>) -> Void) {
@@ -105,6 +279,17 @@ extension DatabaseManager {
             }
             let groupName = data["groupName"]
             completion(.success(groupName ?? "groupName"))
+        })
+    }
+    
+    public func getGroupMembers(groupID: String, completion: @escaping (Result<[String],Error>) -> Void) {
+        database.child("Groups/\(groupID)/groupMembers").observeSingleEvent(of: .value, with: { snapshot in
+            guard let data = snapshot.value as? [String] else {
+                print("Coudl not get group memebers")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(data))
         })
     }
     
@@ -185,7 +370,7 @@ extension DatabaseManager {
         })
     }
     
-    public func listenForGroupChanges(email: String, completion: @escaping (Result<[String], Error>) -> Void) {
+    public func listenForCreatedGroupChanges(email: String, completion: @escaping (Result<[String], Error>) -> Void) {
         guard email != "" else {
             print("No current user")
             return
@@ -210,6 +395,51 @@ extension DatabaseManager {
                 return
             }
             completion(.success(userData))
+        })
+    }
+    
+    public func listenForJoinedGroupChanges(email: String, completion: @escaping (Result<[String: String], Error>) -> Void) {
+        database.child("\(email)/joinedGroups").observe(.value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let value = snapshot.value as? [String: String] else {
+                // Initialize Array
+                let newJoinedGroupsArr = [String: String]()
+                strongSelf.database.child("\(email)/joinedGroups").setValue(newJoinedGroupsArr, withCompletionBlock: { error, _ in
+                    guard error == nil else {
+                        print("Could not set the value of joinedGroups")
+                        completion(.failure(DatabaseError.failedToFetch))
+                        return
+                    }
+                    completion(.success(newJoinedGroupsArr))
+                })
+                return
+            }
+            completion(.success(value))
+        })
+    }
+    
+    public func getJoinedGroupID(email: String, groupName: String, completion: @escaping (Result<String, Error>) -> Void) {
+        database.child("\(email)/joinedGroups").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let dictionary = snapshot.value as? [String: String] else {
+                print("Could not get joinedGroups Dictionary")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            
+            guard let groupID = dictionary[groupName] else {
+                print("Key has no value")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
+            completion(.success(groupID))
+            
         })
     }
     
