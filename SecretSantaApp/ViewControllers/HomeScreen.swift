@@ -11,7 +11,7 @@ import FirebaseAuth
 class HomeScreen: UIViewController {
     
     // MARK: Variable Declaration
-    private let userEmail = CacheManager.getEmailFromCache()
+    private var userEmail = CacheManager.getEmailFromCache()
     
     private var indexPathName = String()
     
@@ -25,7 +25,7 @@ class HomeScreen: UIViewController {
     
     private var isCreator = Bool()
     
-    public var userName = String()
+    private var shouldRefresh = Bool()
     
     private let tableView: UITableView  = {
         
@@ -45,6 +45,8 @@ class HomeScreen: UIViewController {
     }*/
     
     // MARK: UI Code
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -66,7 +68,17 @@ class HomeScreen: UIViewController {
         
         // Subviews
         view.addSubview(tableView)
-        initTableView()
+        
+        //Handling the tableView refresh
+        //DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+        self.initTableView()
+        self.updateTableView()
+
+            
+        //}
+        
+        
+
         
         // Table View items
         /*data.append(HomeScreenViewModel(viewModelType: .section,
@@ -80,7 +92,7 @@ class HomeScreen: UIViewController {
                                                 handler: nil))
             }
         })*/
-        updateTableView()
+        
         
         
     }
@@ -88,13 +100,28 @@ class HomeScreen: UIViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame = view.bounds
+        
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        shouldRefreshView()
+        if shouldRefresh {
+            tableView.isHidden = true
+        }
+    }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         validateAuth()
-        tableView.reloadData()
+        if shouldRefresh {
+            userEmail = CacheManager.getEmailFromCache()
+            initTableView()
+            updateTableView()
+            tableView.isHidden = false
+        }
+        DispatchQueue.main.async {
+            self.tableView.reloadData()
+        }
     }
     
     // MARK: Home Screen Functions
@@ -116,10 +143,33 @@ class HomeScreen: UIViewController {
             }
         })
     }
+    
+    private func groupNoLongerExistsAlert(index: Int, indexPath: IndexPath) {
+        let alert = UIAlertController(title: "Error", message: "Group Owner Has Deleted This Group", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { [weak self] _ in
+            guard let strongSelf = self else {
+                return
+            }
+            strongSelf.tableView.beginUpdates()
+            strongSelf.data.remove(at: index)
+            strongSelf.tableView.deleteRows(at: [indexPath], with: .none)
+            strongSelf.tableView.endUpdates()
+        }))
+        present(alert, animated: true, completion: nil)
+    }
 
+    private func shouldRefreshView() {
+        if CacheManager.getEmailFromCache() == "" || CacheManager.getNameFromCache() == "" {
+            self.shouldRefresh = true
+        }
+        else {
+            shouldRefresh = false
+        }
+    }
+    
     private func validateAuth() {
         
-        if FirebaseAuth.Auth.auth().currentUser == nil {
+        if FirebaseAuth.Auth.auth().currentUser == nil || CacheManager.getEmailFromCache() == "" {
             let vc = LoginViewController()
             let nav = UINavigationController(rootViewController: vc)
             nav.modalPresentationStyle = .fullScreen
@@ -161,7 +211,70 @@ class HomeScreen: UIViewController {
     }
     
     private func updateTableView() {
-        DatabaseManager.shared.listenForCreatedGroupChanges(email: userEmail, completion: { [weak self] result in
+        
+        DatabaseManager.shared.listenForCreatedGroupChangesDict(email: userEmail, completion: { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            var checkIfDeleteArray = [String]()
+            strongSelf.data = [HomeScreenViewModel]()
+            strongSelf.data.append(HomeScreenViewModel(viewModelType: .section, title: "Your Groups: ", handler: nil))
+            switch result {
+            case .success(let dict):
+                for key in dict.keys {
+                    strongSelf.data.append(HomeScreenViewModel(viewModelType: .group, title: key, handler: nil))
+                    checkIfDeleteArray.append(key)
+                }
+                var dataIndex = 0
+                if dict.count < checkIfDeleteArray.count {
+                    for viewModel in strongSelf.data {
+                        if dict[viewModel.title] == nil && viewModel.viewModelType != .section {
+                            strongSelf.tableView.beginUpdates()
+                            strongSelf.data.remove(at: dataIndex)
+                            strongSelf.tableView.deleteRows(at: [IndexPath(row: dataIndex, section: 0)], with: .none)
+                            strongSelf.tableView.endUpdates()
+                        }
+                        dataIndex += 1
+                    }
+                }
+                
+                strongSelf.data.append(HomeScreenViewModel(viewModelType: .section, title: "Joined Groups: ", handler: nil))
+                DatabaseManager.shared.listenForJoinedGroupChanges(email: strongSelf.userEmail, completion: { [weak self] result in
+                    checkIfDeleteArray = [String]()
+                    switch result {
+                    case .success(let dictionary2):
+                        for group in dictionary2.keys {
+                            strongSelf.data.append(HomeScreenViewModel(viewModelType: .group,
+                                                                       title: group,
+                                                                       handler: nil))
+                            checkIfDeleteArray.append(group)
+                        }
+                        var index = 0
+                        print("This is dictionary count: \(dictionary2.count)")
+                        print("This is checkArr count: \(checkIfDeleteArray.count)")
+                        if dictionary2.count < checkIfDeleteArray.count {
+                            for viewModel in strongSelf.data {
+                                if dict[viewModel.title] == nil && viewModel.viewModelType != .section {
+                                    strongSelf.tableView.beginUpdates()
+                                    strongSelf.data.remove(at: index)
+                                    strongSelf.tableView.deleteRows(at: [IndexPath(row: dataIndex, section: 0)], with: .none)
+                                    strongSelf.tableView.endUpdates()
+                                }
+                                index += 1
+                            }
+                        }
+                        DispatchQueue.main.async {
+                            self?.tableView.reloadData()
+                        }
+                    case .failure(let error):
+                        print("Could not get joinedGroups: \(error)")
+                    }
+                })
+            case .failure(_):
+                print("Could not get the createdGroup dictionary")
+            }
+        })
+        /*DatabaseManager.shared.listenForCreatedGroupChanges(email: userEmail, completion: { [weak self] result in
             guard let strongSelf = self else {
                 return
             }
@@ -179,11 +292,23 @@ class HomeScreen: UIViewController {
                 strongSelf.data.append(HomeScreenViewModel(viewModelType: .section, title: "Joined Groups: ", handler: nil))
                 DatabaseManager.shared.listenForJoinedGroupChanges(email: strongSelf.userEmail, completion: { [weak self] result in
                     switch result {
-                    case .success(let array):
-                        for group in array.keys {
+                    case .success(let dictionary2):
+                        for group in dictionary2.keys {
                             strongSelf.data.append(HomeScreenViewModel(viewModelType: .group,
                                                                        title: group,
                                                                        handler: nil))
+                        }
+                        var index = 0
+                        if dictionary2.count < strongSelf.data.count - 2 {
+                            for viewModel in strongSelf.data {
+                                if dictionary2[viewModel.title] == nil && viewModel.viewModelType != .section {
+                                    strongSelf.tableView.beginUpdates()
+                                    strongSelf.data.remove(at: index)
+                                    strongSelf.tableView.deleteRows(at: [IndexPath(row: index, section: 0)], with: .none)
+                                    strongSelf.tableView.endUpdates()
+                                }
+                                index += 1
+                            }
                         }
                         DispatchQueue.main.async {
                             self?.tableView.reloadData()
@@ -196,7 +321,7 @@ class HomeScreen: UIViewController {
                 print("Could not get values: \(error)")
                 return
             }
-        })
+        })*/
     }
     
     
@@ -224,7 +349,7 @@ class HomeScreen: UIViewController {
         headerView.backgroundColor = .black
         
         // Create the welcome label
-        var headerLabel = UILabel(frame: CGRect(x: (headerView.width - 278),
+        let headerLabel = UILabel(frame: CGRect(x: (headerView.width - 278),
                                                 y: 50,
                                                 width: headerView.width,
                                                 height: 75))
@@ -233,7 +358,9 @@ class HomeScreen: UIViewController {
             switch result {
             case .success(let name):
                 headerLabel.text = "Welcome " + name
-                self?.tableView.reloadData()
+                DispatchQueue.main.async {
+                    self?.tableView.tableHeaderView?.reloadInputViews()
+                }
                 return
             case .failure(let error):
                 print("Could not find user")
@@ -293,6 +420,7 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
             tableView.deselectRow(at: indexPath, animated: true)
             indexPathName = data[indexPath.row].title
             data[indexPath.row].handler?()
+            let index = indexPath.row
             
             // Check if it's a created group or joined group
             var increment = 0
@@ -317,6 +445,7 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
                         strongSelf.navigationController?.pushViewController(vc, animated: true)
                     case .failure(let error):
                         print("Could not get joinedGroups error: \(error)")
+                        strongSelf.groupNoLongerExistsAlert(index: index, indexPath: indexPath)
                         return
                     }
                 })
@@ -325,8 +454,8 @@ extension HomeScreen: UITableViewDelegate, UITableViewDataSource {
             else { // This is a created group. Get the info
                 isCreator = true
                 // Get group ID
-                let index = indexPath.row - 1
-                DatabaseManager.shared.getCreatedGroupsID(email: userEmail, row: index, completion: { [weak self] result in
+                //let index = indexPath.row - 1
+                DatabaseManager.shared.getCreatedGroupsID(email: userEmail, groupName: indexPathName, completion: { [weak self] result in
                     guard let strongSelf = self else {
                         return
                     }

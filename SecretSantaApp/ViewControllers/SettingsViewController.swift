@@ -39,8 +39,18 @@ class SettingsViewController: UIViewController {
             
         }))
         tableViewData.append(SettingsViewModel(viewModelType: .logout, title: "Log Out", handler: { [weak self] in
-            self?.removeDataFromCache()
-            self?.logOut()
+            guard let strongSelf = self else {
+                return
+            }
+            
+            strongSelf.logOut(completion: { bool in
+                if bool {
+                    strongSelf.removeDataFromCache()
+                    self?.tabBarController?.selectedIndex = 0
+                }
+                
+            })
+            
         }))
         
     }
@@ -58,13 +68,9 @@ class SettingsViewController: UIViewController {
     }
     
     private func removeDataFromCache() {
-        if let bundleID = Bundle.main.bundleIdentifier {
-            UserDefaults.standard.removePersistentDomain(forName: bundleID)
-            print("Successfully removed userdefaults values")
-        }
-        else {
-            print("Could not remove userdefaults values")
-        }
+        UserDefaults.standard.dictionaryRepresentation().keys.forEach({ key in
+            UserDefaults.standard.removeObject(forKey: key)
+        })
     }
     
 

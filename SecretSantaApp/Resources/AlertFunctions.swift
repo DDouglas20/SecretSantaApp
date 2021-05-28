@@ -74,6 +74,18 @@ extension UIViewController {
         present(alert, animated: true)
     }
     
+    func groupCreated() {
+        let alert = UIAlertController(title: "Group Created",
+                                      message: "Group Successfully Created",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss",
+                                      style: .cancel,
+                                      handler: { [weak self] _ in
+                                        self?.navigationController?.popViewController(animated: true)
+                                      }))
+        present(alert, animated: true)
+    }
+    
     func maxRoomsCreated() {
         let alert = UIAlertController(title: "Limit Reached",
                                       message: "You Have Created the Max Number of Groups Allowed",
@@ -141,6 +153,27 @@ extension UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    func deletedGroup() {
+        let alert = UIAlertController(title: "Done", message: "Successfully Deleted Group", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: { [weak self] _ in
+            self?.view.window?.rootViewController?.dismiss(animated: false, completion: nil)
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
+    func leaveGroupWarning(completion: @escaping (Bool) -> Void) {
+        let alert = UIAlertController(title: "Warning",
+                                      message: "Are You Sure You Want to Leave the Group?",
+                                      preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Leave", style: .destructive, handler: { _ in
+            completion(true)
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { _ in
+            completion(false)
+        }))
+        present(alert, animated: true, completion: nil)
+    }
+    
     func joinGroupFieldEmpty() {
         let alert = UIAlertController(title: "Error", message: "Field is Empty", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
@@ -170,7 +203,7 @@ extension UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    func logOut() {
+    func logOut(completion: @escaping (Bool) -> Void) {
         let actionSheet = UIAlertController(title: "Log Out",
                                       message: "Are you sure you want to logout?",
                                       preferredStyle: .actionSheet)
@@ -186,9 +219,11 @@ extension UIViewController {
                                                     let nav = UINavigationController(rootViewController: vc)
                                                     nav.modalPresentationStyle =  .fullScreen
                                                     self?.present(nav, animated: true)
+                                                    completion(true)
                                                 }
                                                 catch {
                                                     print("Could not log out")
+                                                    completion(false)
                                                 }
                                                 
                                             }))

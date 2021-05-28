@@ -102,17 +102,21 @@ extension DatabaseManager {
             guard let strongSelf = self else {
                 return
             }
-            guard var value = snapshot.value as? [String] else {
+            guard var value = snapshot.value as? [String: String] else {
                 completion(databaseError)
                 return
             }
-            for name in value {
+            /*for name in value {
                 if name == memberName {
                     completion(memberExists)
                     return
                 }
+            }*/
+            if value[memberName] != nil {
+                completion(memberExists)
+                return
             }
-            value.append(memberName)
+            value[memberName] = email
             strongSelf.database.child("Groups/\(groupID)/groupMembers").setValue(value, withCompletionBlock: { error, _ in
                 guard error == nil else {
                     completion(databaseError)
@@ -144,6 +148,77 @@ extension DatabaseManager {
         
     }
     
+    public func removeCreatedGroup(email: String, groupName: String, completion: @escaping (Bool) -> Void) {
+        database.child("\(email)/createdGroups").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard var dict = snapshot.value as? [String: String] else {
+                print("Could not get created groups dict")
+                completion(false)
+                return
+            }
+            dict.removeValue(forKey: groupName)
+            strongSelf.database.child("\(email)/createdGroups").setValue(dict, withCompletionBlock: { error, _ in
+                guard error == nil else {
+                    completion(false)
+                    print("Could not update createdGroupsDict")
+                    return
+                }
+                completion(true)
+            })
+        })
+    }
+    
+    public func removeAllMembersFromGroup(groupID: String, creatorEmail: String, groupName: String, completion: @escaping (Bool) -> Void) {
+        var completionCheck = 1
+        database.child("Groups/\(groupID)/groupMembers").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let memberData = snapshot.value as? [String: String] else {
+                print("Could not get member data")
+                completion(false)
+                return
+            }
+            for key in memberData.keys {
+                guard let memberEmail = memberData[key] else {
+                    print("Member key was nil")
+                    completion(false)
+                    return
+                }
+                print("This is memberEmail: \(memberEmail)")
+                if memberEmail == creatorEmail {
+                    
+                }
+                else {
+                    strongSelf.database.child("\(memberEmail)/joinedGroups").observeSingleEvent(of: .value, with: { snapshot in
+                        guard var dict = snapshot.value as? [String: String] else {
+                            print("Could not get members dictionaries")
+                            completion(false)
+                            return
+                        }
+                        dict.removeValue(forKey: groupName)
+                        strongSelf.database.child("\(memberEmail)/joinedGroups").setValue(dict, withCompletionBlock: { error, _ in
+                            guard error == nil else {
+                                print("Could not delete from group")
+                                completion(false)
+                                return
+                            }
+                        })
+                    })
+                }
+                completionCheck += 1
+                if memberData.count == completionCheck {
+                    completion(true)
+                }
+            }
+            
+        })
+        
+}
     
     public func deleteFromGroups(groupID: String, completion: @escaping (Bool) -> Void) {
         database.child("Groups/\(groupID)").removeValue(completionBlock: { error, _ in
@@ -153,6 +228,47 @@ extension DatabaseManager {
                 return
             }
             completion(true)
+        })
+    }
+    
+    public func deleteFromCreatedGroups(email: String, completion: @escaping (Bool) -> Void) {
+        //database.child("\(email)/createdGroups")
+    }
+    
+    public func leaveGroup(groupId: String, memberName: String, email: String, groupName: String, completion: @escaping (Bool) -> Void) {
+        database.child("Groups/\(groupId)/groupMembers").observeSingleEvent(of: .value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard var dictionary = snapshot.value as? [String: String] else {
+                print("Could not get dictionary from database")
+                completion(false)
+                return
+            }
+            dictionary.removeValue(forKey: memberName)
+            strongSelf.database.child("Groups/\(groupId)/groupMembers").setValue(dictionary, withCompletionBlock: { error, _ in
+                guard error == nil else {
+                    completion(false)
+                    return
+                }
+                strongSelf.database.child("\(email)/joinedGroups").observeSingleEvent(of: .value, with: { snapshot in
+                    guard var joinedDict = snapshot.value as? [String: String] else {
+                        print("Could not get joined groups")
+                        completion(false)
+                        return
+                    }
+                    joinedDict.removeValue(forKey: groupName)
+                    strongSelf.database.child("\(email)/joinedGroups").setValue(joinedDict, withCompletionBlock: { error, _ in
+                        guard error == nil else {
+                            completion(false)
+                            print("Could not remove group from joinedGroups")
+                            return
+                        }
+                        completion(true)
+                    })
+                })
+            })
         })
     }
     
@@ -271,25 +387,30 @@ extension DatabaseManager {
     }
     
     public func getGroupName(groupID: String, completion: @escaping (Result<String,Error>) -> Void) {
-        database.child("Groups/\(groupID)").observe(.value, with: { snapshot in
-            guard let data = snapshot.value as? [String: String] else {
+        database.child("Groups/\(groupID)/groupName").observe(.value, with: { snapshot in
+            guard let data = snapshot.value as? String else {
                 print("Could not get group name")
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            let groupName = data["groupName"]
-            completion(.success(groupName ?? "groupName"))
+            let groupName = data
+            completion(.success(groupName))
         })
     }
     
     public func getGroupMembers(groupID: String, completion: @escaping (Result<[String],Error>) -> Void) {
+        var arrOfMembers = [String]()
+        
         database.child("Groups/\(groupID)/groupMembers").observeSingleEvent(of: .value, with: { snapshot in
-            guard let data = snapshot.value as? [String] else {
+            guard let data = snapshot.value as? [String: String] else {
                 print("Coudl not get group memebers")
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            completion(.success(data))
+            for key in data.keys {
+                arrOfMembers.append(key)
+            }
+            completion(.success(arrOfMembers))
         })
     }
     
@@ -340,7 +461,7 @@ extension DatabaseManager {
         })
     }
     
-    public func deleteGroup(email: String, groupName: String, completion: @escaping (Bool) -> Void) {
+    public func deleteCreatedGroup(email: String, groupName: String, completion: @escaping (Bool) -> Void) {
         database.child("\(email)/createdGroups").observeSingleEvent(of: .value, with: { [weak self] snapshot in
             guard var value = snapshot.value as? [String] else {
                 print("Could not find user's created groups")
@@ -359,6 +480,16 @@ extension DatabaseManager {
         })
     }
     
+    public func createGroupDict(dict: [String: String], email: String, completion: @escaping (Bool) -> Void) {
+        database.child("\(email)/createdGroups").setValue(dict, withCompletionBlock: { error, _ in
+            guard error == nil else {
+                completion(false)
+                return
+            }
+            completion(true)
+        })
+    }
+    
     public func createGroup(array: [String], email: String, completion: @escaping (Bool) -> Void) {
         database.child("\(email)/createdGroups").setValue(array, withCompletionBlock: { error, _ in
             guard error == nil else {
@@ -370,7 +501,32 @@ extension DatabaseManager {
         })
     }
     
-    public func listenForCreatedGroupChanges(email: String, completion: @escaping (Result<[String], Error>) -> Void) {
+    public func listenForCreatedGroupChangesDict(email: String, completion: @escaping (Result<[String: String], Error>) -> Void) {
+        database.child("\(email)/createdGroups").observe(.value, with: { [weak self] snapshot in
+            guard let strongSelf = self else {
+                return
+            }
+            
+            guard let groupsDict = snapshot.value as? [String: String] else {
+                // Initialize Array
+                let newDict = [String: String]()
+                strongSelf.database.child("\(email)/createdGroups").setValue(newDict, withCompletionBlock: { error, _ in
+                    guard error == nil else {
+                        print("Could not update createdGroups")
+                        completion(.failure(DatabaseError.failedToFetch))
+                        return
+                    }
+                    completion(.success(newDict))
+                })
+               return
+            }
+            
+            completion(.success(groupsDict))
+            
+        })
+    }
+    
+    /*public func listenForCreatedGroupChanges(email: String, completion: @escaping (Result<[String], Error>) -> Void) {
         guard email != "" else {
             print("No current user")
             return
@@ -396,7 +552,7 @@ extension DatabaseManager {
             }
             completion(.success(userData))
         })
-    }
+    }*/
     
     public func listenForJoinedGroupChanges(email: String, completion: @escaping (Result<[String: String], Error>) -> Void) {
         database.child("\(email)/joinedGroups").observe(.value, with: { [weak self] snapshot in
@@ -417,6 +573,7 @@ extension DatabaseManager {
                 })
                 return
             }
+            print("This is value: \(value)")
             completion(.success(value))
         })
     }
@@ -440,6 +597,19 @@ extension DatabaseManager {
             }
             completion(.success(groupID))
             
+        })
+    }
+    
+    public func getCreatedGroupsDict(email: String, completion: @escaping (Result<[String: String], Error>) -> Void) {
+        database.child("\(email)/createdGroups").observeSingleEvent(of: .value, with: { snapshot in
+            guard let dict = snapshot.value as? [String: String] else {
+                // Initialize a new dict
+                print("Could not find any groups so creating a new one")
+                let newDict = [String: String]()
+                completion(.success(newDict))
+                return
+            }
+            completion(.success(dict))
         })
     }
     
@@ -471,16 +641,19 @@ extension DatabaseManager {
         
     }
     
-    public func getCreatedGroupsID(email: String, row: Int, completion: @escaping (Result<String,Error>) -> Void) {
-        database.child("\(email)/createdGroupsID").observeSingleEvent(of: .value, with: { snapshot in
-            guard let data = snapshot.value as? [String] else {
+    public func getCreatedGroupsID(email: String, groupName: String, completion: @escaping (Result<String,Error>) -> Void) {
+        database.child("\(email)/createdGroups").observeSingleEvent(of: .value, with: { snapshot in
+            guard let data = snapshot.value as? [String: String] else {
                 print("Could not retrieve createdGroupsID")
                 completion(.failure(DatabaseError.failedToFetch))
                 return
             }
-            let groupID = data[row]
+            guard let groupID = data[groupName] else {
+                print("Could not get groupID")
+                completion(.failure(DatabaseError.failedToFetch))
+                return
+            }
             completion(.success(groupID))
-            
         })
     }
     

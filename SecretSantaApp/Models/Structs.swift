@@ -23,7 +23,7 @@ struct SecretSantaUser {
 
 struct groupStructure {
     let groupName: String
-    let groupMembers: [String]
+    let groupMembers: [String: String]
     let listOfGifts: [Any]
 }
 

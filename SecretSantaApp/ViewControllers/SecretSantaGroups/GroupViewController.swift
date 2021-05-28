@@ -9,7 +9,9 @@ import UIKit
 
 class GroupViewController: UIViewController {
     
-    private var memberName = UserDefaults.standard.value(forKey: "name") as? String ?? ""
+    private var memberName = CacheManager.getNameFromCache()
+    
+    private var memberEmail = CacheManager.getEmailFromCache()
     
     private var isCreator = Bool()
     
@@ -138,6 +140,7 @@ class GroupViewController: UIViewController {
         
         // Data functions
         getSelfGifts(groupID: groupID, memberName: memberName)
+        getGroupName()
         
         
         
@@ -246,7 +249,7 @@ class GroupViewController: UIViewController {
     
     @objc private func viewMembers() {
         
-        let popupVC = MembersViewController(members: groupMembers, groupID: groupID, isCreator: isCreator)
+        let popupVC = MembersViewController(members: groupMembers, groupID: groupID, groupName: groupName, isCreator: isCreator)
         popupVC.modalPresentationStyle = .overCurrentContext
         popupVC.modalTransitionStyle = .crossDissolve
         present(popupVC, animated: true, completion: nil)

@@ -15,6 +15,12 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     private var isCreator = Bool()
     
+    private let email = CacheManager.getEmailFromCache()
+    
+    private let memberName = CacheManager.getNameFromCache()
+    
+    private var groupName = String()
+    
     private let popupBox: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
@@ -52,6 +58,9 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     private let leaveGroupButton: UIButton = {
         let button = UIButton()
+        button.setTitle("Leave Group", for: .normal)
+        button.setTitleColor(.systemRed, for: .normal)
+        button.backgroundColor = .lightGray
         
         return button
     }()
@@ -65,10 +74,11 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
         return button
     }()
     
-    init(members: [String], groupID: String, isCreator: Bool) {
+    init(members: [String], groupID: String, groupName: String, isCreator: Bool) {
         membersArray = members
         self.groupID = groupID
         self.isCreator = isCreator
+        self.groupName = groupName
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -98,6 +108,7 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
         exitButton.addTarget(self, action: #selector(dismissVC), for: .touchUpInside)
         copyGroupIDButton.addTarget(self, action: #selector(copyGroupID), for: .touchUpInside)
         deleteGroupButton.addTarget(self, action: #selector(deleteGroup), for: .touchUpInside)
+        leaveGroupButton.addTarget(self, action: #selector(leaveGroup), for: .touchUpInside)
     }
     
     override func viewDidLayoutSubviews() {
@@ -110,7 +121,7 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
             deleteGroupButton.frame = CGRect(x: 50, y: 305, width: 200, height: 20)
         }
         if !isCreator {
-            
+            leaveGroupButton.frame = CGRect(x: 50, y: 305, width: 200, height: 20)
         }
         
     }
@@ -133,15 +144,61 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
             
             if bool {
+                // Create function to remove existing members from group in their personal trees
+                DatabaseManager.shared.removeAllMembersFromGroup(groupID: strongSelf.groupID, creatorEmail: strongSelf.email, groupName: strongSelf.groupName, completion: { bool in
+                    if bool {
+                        DatabaseManager.shared.removeCreatedGroup(email: strongSelf.email, groupName: strongSelf.groupName, completion: { bool in
+                            if bool {
+                                DatabaseManager.shared.deleteFromGroups(groupID: strongSelf.groupID, completion: { bool in
+                                    if !bool {
+                                        print("We did not complete deleteFromGroups")
+                                    }
+                                    strongSelf.deletedGroup()
+                                })
+                            }
+                            else {
+                                print("We did not complete removeCreatedGroup")
+                            }
+                        })
+                    }
+                    else {
+                        print("We did not complete removeAllMembersFromGroup")
+                    }
+                })
+                /*DatabaseManager.shared.removeAllMembersfromGroup(groupID: strongSelf.groupID, creatorEmail: strongSelf.email, groupName: strongSelf.groupName, completion: { bool in
+                    if bool {
+                        strongSelf.deletedGroup()
+                    }
+                })*/
+                // Delete from creator groups
+                
+                
                 // Delete Group
-                DatabaseManager.shared.deleteFromGroups(groupID: strongSelf.groupID, completion: { bool in})
-                // Include the deleteGroup function
-                // Include the deleteGroupID function
-                // Create function to remove existing members from group
+                
+                
             }
             else {
                 print("testing fucntionality")
             }
+        })
+    }
+    
+    @objc private func leaveGroup() {
+        leaveGroupWarning(completion: { [weak self] bool in
+            guard let strongSelf = self else {
+                return
+            }
+            if bool {
+                //Leave Group. Takes care of member in Groups and joined Groups
+                DatabaseManager.shared.leaveGroup(groupId: strongSelf.groupID, memberName: strongSelf.memberName, email: strongSelf.email, groupName: strongSelf.groupName, completion: { bool in
+                    if bool {
+                        strongSelf.presentingViewController?.dismiss(animated: true, completion: nil)
+                        
+                    }
+                })
+                
+            }
+            
         })
     }
     
@@ -154,6 +211,7 @@ class MembersViewController: UIViewController, UITableViewDelegate, UITableViewD
         popupBox.addSubview(exitButton)
         popupBox.addSubview(copyGroupIDButton)
         popupBox.addSubview(deleteGroupButton)
+        popupBox.addSubview(leaveGroupButton)
         
         popupBox.heightAnchor.constraint(equalToConstant: 335).isActive = true
         popupBox.widthAnchor.constraint(equalToConstant: 300).isActive = true

@@ -20,7 +20,7 @@ final class CacheManager {
     
     static func getNameFromCache() -> String {
         guard let name = UserDefaults.standard.value(forKey: "name") as? String else {
-            print("Could cache for key 'name' is empty")
+            print("Couldn't get cache for key 'name' is empty")
             return ""
         }
         return name

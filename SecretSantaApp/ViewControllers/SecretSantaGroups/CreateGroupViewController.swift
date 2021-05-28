@@ -177,7 +177,11 @@ class CreateGroupViewController: UIViewController {
     
     private func createGroupStruct(groupName: String, completion: @escaping (Result<groupStructure,Error>) -> Void) {
         var name = String()
-        DatabaseManager.shared.getName(with: email, completion: { result in
+        DatabaseManager.shared.getName(with: email, completion: { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            
             switch result {
             case .success(let data):
                 guard let userData = data as? String else {
@@ -192,7 +196,7 @@ class CreateGroupViewController: UIViewController {
                 
             }
             print("This is name: \(name)")
-            let groupStruct = groupStructure(groupName: groupName, groupMembers: [name], listOfGifts: [""])
+            let groupStruct = groupStructure(groupName: groupName, groupMembers: [name: strongSelf.email], listOfGifts: [""])
             completion(.success(groupStruct))
         })
         
@@ -205,13 +209,50 @@ class CreateGroupViewController: UIViewController {
               !groupName.isEmpty else {
                 return
         }
-        let userEmail = email
+        DatabaseManager.shared.getCreatedGroupsDict(email: email, completion: { [weak self] result in
+            guard let strongSelf = self else {
+                return
+            }
+            var newDict = [String: String]()
+            switch result {
+            case .success(let dict):
+                if dict.count >= 10 {
+                    strongSelf.maxRoomsCreated()
+                    return
+                }
+                newDict = dict
+                let groupID = DatabaseManager.shared.createGroupID(groupName: groupName, email: strongSelf.email)
+                newDict[groupName] = groupID
+                DatabaseManager.shared.createGroupDict(dict: newDict, email: strongSelf.email, completion: { bool in
+                    if bool {
+                        strongSelf.createGroupStruct(groupName: groupName, completion: { result in
+                            switch result {
+                            case .success(let groupStruct):
+                                DatabaseManager.shared.insertGroupStructure(groupStruct: groupStruct, groupID: groupID, completion: { bool in
+                                    if bool {
+                                        strongSelf.groupCreated()
+                                    }
+                                })
+                            case .failure(_):
+                                print("Could not createGroupStruct")
+                                return
+                            }
+                        })
+                    }
+                })
+            case .failure(_):
+                print("createdGroups not properly init")
+                return
+            }
+        })
+        /*let userEmail = email
         var newArray = [String]()
         var position = Int()
         var keepInserting = true
         var shouldLoop = true
         //var aSyncBool = false
         // Check to see if the user has any rooms free
+        // Come back to this later and see if you can clean it up
         DatabaseManager.shared.getCreatedGroups(with: email, completion: { [weak self] result in
             switch result {
             case .success(let data):
@@ -277,7 +318,7 @@ class CreateGroupViewController: UIViewController {
                                                     self?.navigationController?.popViewController(animated: true)
                                                 }
                                                 else {
-                                                    DatabaseManager.shared.deleteGroup(email: strongSelf.email, groupName: groupName, completion: { bool in})
+                                                    DatabaseManager.shared.deleteCreatedGroup(email: strongSelf.email, groupName: groupName, completion: { bool in})
                                                     DatabaseManager.shared.deleteGroupID(email: strongSelf.email, row: x - 1, completion: { bool in})
                                                     print("Could not insert groupStructure")
                                                 }
@@ -312,7 +353,7 @@ class CreateGroupViewController: UIViewController {
                 return
             }
             
-        })
+        })*/
     }
     
     @objc private func joinButtonTapped() {
