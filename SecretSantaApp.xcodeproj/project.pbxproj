@@ -35,6 +35,7 @@
 		B70E25652655D3F9008D79BB /* GiftingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25642655D3F9008D79BB /* GiftingTableViewCell.swift */; };
 		B70E256826598EA7008D79BB /* MemberGiftsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E256726598EA7008D79BB /* MemberGiftsViewController.swift */; };
 		B70E256C2659A1B3008D79BB /* AddGiftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E256B2659A1B3008D79BB /* AddGiftViewController.swift */; };
+		B70E25A92661B41C008D79BB /* DateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B70E25A82661B41C008D79BB /* DateViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -68,6 +69,7 @@
 		B70E25642655D3F9008D79BB /* GiftingTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiftingTableViewCell.swift; sourceTree = "<group>"; };
 		B70E256726598EA7008D79BB /* MemberGiftsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MemberGiftsViewController.swift; sourceTree = "<group>"; };
 		B70E256B2659A1B3008D79BB /* AddGiftViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddGiftViewController.swift; sourceTree = "<group>"; };
+		B70E25A82661B41C008D79BB /* DateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateViewController.swift; sourceTree = "<group>"; };
 		F747B4FB613B905E2DF12BEB /* Pods-SecretSantaApp.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SecretSantaApp.release.xcconfig"; path = "Target Support Files/Pods-SecretSantaApp/Pods-SecretSantaApp.release.xcconfig"; sourceTree = "<group>"; };
 		F9B87715DB645009E480207F /* Pods_SecretSantaApp.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SecretSantaApp.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -198,6 +200,7 @@
 				B70E25612655C061008D79BB /* MembersViewController.swift */,
 				B70E256726598EA7008D79BB /* MemberGiftsViewController.swift */,
 				B70E256B2659A1B3008D79BB /* AddGiftViewController.swift */,
+				B70E25A82661B41C008D79BB /* DateViewController.swift */,
 			);
 			path = GroupViewControllers;
 			sourceTree = "<group>";
@@ -333,6 +336,7 @@
 				B70E25652655D3F9008D79BB /* GiftingTableViewCell.swift in Sources */,
 				B70E25622655C061008D79BB /* MembersViewController.swift in Sources */,
 				B70E25412645C784008D79BB /* CreateGroupViewController.swift in Sources */,
+				B70E25A92661B41C008D79BB /* DateViewController.swift in Sources */,
 				B70E24422634BE3F008D79BB /* AppDelegate.swift in Sources */,
 				B70E25222641DD2F008D79BB /* HomeScreenViewModel.swift in Sources */,
 				B70E256C2659A1B3008D79BB /* AddGiftViewController.swift in Sources */,

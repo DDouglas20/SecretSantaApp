@@ -250,8 +250,6 @@ class HomeScreen: UIViewController {
                             checkIfDeleteArray.append(group)
                         }
                         var index = 0
-                        print("This is dictionary count: \(dictionary2.count)")
-                        print("This is checkArr count: \(checkIfDeleteArray.count)")
                         if dictionary2.count < checkIfDeleteArray.count {
                             for viewModel in strongSelf.data {
                                 if dict[viewModel.title] == nil && viewModel.viewModelType != .section {

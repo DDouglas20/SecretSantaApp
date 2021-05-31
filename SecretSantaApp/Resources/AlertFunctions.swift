@@ -203,6 +203,12 @@ extension UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
+    func dateSuccessfullySet() {
+        let alert = UIAlertController(title: "Date Set", message: "Date Successfully Set", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Dismiss", style: .cancel, handler: nil))
+        present(alert, animated: true, completion: nil)
+    }
+    
     func logOut(completion: @escaping (Bool) -> Void) {
         let actionSheet = UIAlertController(title: "Log Out",
                                       message: "Are you sure you want to logout?",

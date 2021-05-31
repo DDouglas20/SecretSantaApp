@@ -573,7 +573,7 @@ extension DatabaseManager {
                 })
                 return
             }
-            print("This is value: \(value)")
+            
             completion(.success(value))
         })
     }

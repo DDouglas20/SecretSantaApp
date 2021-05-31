@@ -49,6 +49,13 @@ class GroupViewController: UIViewController {
         return view
     }()
     
+    private var memberScreen: UIView = {
+       let view = UIView()
+        view.isHidden = true
+        
+        return view
+    }()
+    
     
     
     private let pairButton: UIButton = {
@@ -64,7 +71,19 @@ class GroupViewController: UIViewController {
         label.text = "Click the Image to get Started"
         label.font = .systemFont(ofSize: 35)
         label.textColor = .white
-        label.lineBreakMode = .byCharWrapping
+        label.lineBreakMode = .byWordWrapping
+        label.numberOfLines = 2
+        label.textAlignment = .center
+        
+        return label
+    }()
+    
+    private let waitingForGroupLeaderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Waiting for Group Leader to Start"
+        label.font = .systemFont(ofSize: 35)
+        label.textColor = .white
+        label.lineBreakMode = .byWordWrapping
         label.numberOfLines = 2
         label.textAlignment = .center
         
@@ -89,6 +108,7 @@ class GroupViewController: UIViewController {
         
         // Update Variables
         getGroupMembers(completion: { bool in})
+        
 
         // Add Bar Button Items
         let UIBarButton1: UIBarButtonItem = {
@@ -108,7 +128,7 @@ class GroupViewController: UIViewController {
             return barButton
         }()
         let UIBarButton3: UIBarButtonItem = {
-           let button = UIBarButtonItem(image: UIImage(systemName: "gearshape"),
+           let button = UIBarButtonItem(image: UIImage(systemName: "calendar.badge.clock"),
                                         style: .plain,
                                         target: self,
                                         action: #selector(changeEndDate))
@@ -132,8 +152,10 @@ class GroupViewController: UIViewController {
         // Add subviews
         view.addSubview(rollScreen)
         view.addSubview(giftingScreen)
+        view.addSubview(memberScreen)
         rollScreen.addSubview(pairButton)
         rollScreen.addSubview(noCurrentPairsLabel)
+        memberScreen.addSubview(waitingForGroupLeaderLabel)
         
         // Display Views
         displayPairs()
@@ -147,11 +169,20 @@ class GroupViewController: UIViewController {
     }
     
     override func viewDidLayoutSubviews() {
-        rollScreen.frame = view.bounds
+        if isCreator{
+            rollScreen.frame = view.bounds
+            
+            pairButton.frame = CGRect(x: view.width/4, y: 250, width: view.width/2, height: view.height/4)
+            
+            noCurrentPairsLabel.frame = CGRect(x: 45, y: 100, width: view.width - 100, height: view.height/4)
+        }
         
-        pairButton.frame = CGRect(x: view.width/4, y: 250, width: view.width/2, height: view.height/4)
+        if !isCreator {
+            memberScreen.frame = view.bounds
+            
+            waitingForGroupLeaderLabel.frame = CGRect(x: 45, y: 100, width: view.width - 100, height: view.height/4)
+        }
         
-        noCurrentPairsLabel.frame = CGRect(x: 45, y: 100, width: view.width - 100, height: view.height/4)
     }
     
     //MARK: Initializer
@@ -214,6 +245,7 @@ class GroupViewController: UIViewController {
             case .failure(let error):
                 print("No pairs exist: \(error)")
                 strongSelf.rollScreen.isHidden = false
+                strongSelf.memberScreen.isHidden = false
                 
             }
         })
@@ -270,7 +302,10 @@ class GroupViewController: UIViewController {
     }
     
     @objc private func changeEndDate() {
-        
+        let vc = DateViewController(isCreator: isCreator)
+        vc.modalPresentationStyle = .overCurrentContext
+        vc.modalTransitionStyle = .crossDissolve
+        present(vc, animated: true, completion: nil)
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
